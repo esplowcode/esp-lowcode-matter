@@ -1,0 +1,21 @@
+menu "SSD1306 Configuration"
+
+    config SSD1306_WIDTH
+        int "SSD1306 width"
+        default 128
+        help
+            SSD1306 width
+
+    config SSD1306_HEIGHT
+        int "SSD1306 height"
+        default 64
+        help
+            SSD1306 height
+
+    config SSD1306_CMD_LEN
+        int "SSD1306 maximum command lenght"
+        default 16
+        help
+        SSD1306 maximum command lenght
+
+endmenu
