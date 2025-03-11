@@ -20,6 +20,7 @@
 /* Driver functions */
 int app_driver_init();
 int app_driver_feature_update();
+int app_driver_read_temperature();
 
 /* Events handler */
 int app_driver_event_handler(low_code_event_t *event);

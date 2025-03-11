@@ -1,21 +1,5 @@
 {
     "config_version": 3,
-    "pre_driver": [
-        {
-            "type": "ezc.pre_driver.power_management",
-            "enable_light_sleep": true,
-            "max_freq_mhz": 160,
-            "min_freq_mhz": 10
-        }
-    ],
-    "product_common": [
-        {
-            "type": "ezc.product_common.factory_reset",
-            "subtype": 1,
-            "count": 3,
-            "auto_trigger": true
-        }
-    ],
     "test_mode": [
         {
             "type": "ezc.test_mode.common",

@@ -35,6 +35,15 @@ static void loop()
     /* The corresponding callbacks are called if data is received from system */
     low_code_get_feature_update_from_system();
     low_code_get_event_from_system();
+
+    /*
+     * Read the temperature from the sensor.
+     * Also report the updated value to the system_loop
+     */
+    app_driver_read_temperature();
+
+    /* Updates the temperature every 10 seconds */
+    system_delay(10);
 }
 
 int feature_update_from_system(low_code_feature_data_t *data)

@@ -14,24 +14,108 @@
 
 #include <stdio.h>
 
+#include <esp_log.h>
+#include <hal/i2c_types.h>
+
 #include "app_priv.h"
 
+#include <low_code.h>
+#include <system.h>
+#include <button_driver.h>
+#include <simple_i2c_master.h>
+#include <temperature_sensor_sht30.h>
+
+#define BUTTON_GPIO_NUM (gpio_num_t)9
+
+#define I2C_SCL_IO (gpio_num_t)1
+#define I2C_SDA_IO (gpio_num_t)2
+
 static const char *TAG = "app_driver";
+
+static i2c_dev_t *dev;
+
+static void app_driver_trigger_factory_reset_button_callback(void *arg, void *data)
+{
+    /* Update by sending event */
+    low_code_event_t event = {
+        .event_type = LOW_CODE_EVENT_FACTORY_RESET
+    };
+
+    low_code_event_to_system(&event);
+    printf("%s: Factory reset triggered\n", TAG);
+}
+
+static void app_driver_temperature_report(float temp)
+{
+    int16_t temperature = temp*100;
+    /* Update the feature */
+    low_code_feature_data_t update_data = {
+        .details = {
+            .endpoint_id = 1,
+            .low_level = {
+                .matter = {
+                    .cluster_id = 0x0402,
+                    .attribute_id = 0x0000,
+                },
+            }
+        },
+        .value = {
+            .type = LOW_CODE_VALUE_TYPE_INTEGER,
+            .value_len = sizeof(int16_t),
+            .value = (uint8_t*)&temperature,
+        },
+    };
+
+    low_code_feature_update_to_system(&update_data);
+}
+
+int app_driver_read_temperature()
+{
+    float temperature = 0.0;
+    temperature_sensor_sht30_get_celsius(dev, &temperature);
+    system_delay_ms(100);
+    app_driver_temperature_report(temperature);
+    printf("Temperature: %f\n", temperature);
+    return 0;
+}
 
 int app_driver_init()
 {
     printf("%s: Initializing driver\n", TAG);
-    /* Add driver initialization code here */
 
+    /* Initialize button */
+    button_config_t btn_cfg = {
+        .gpio_num = BUTTON_GPIO_NUM,
+        .pullup_en = 1,
+        .active_level = 0,
+    };
+    button_handle_t btn_handle = button_driver_create(&btn_cfg);
+    if (!btn_handle) {
+        printf("Failed to create the button");
+        return -1;
+    }
+
+    /* Register callback to factory reset the device on button long press */
+    button_driver_register_cb(btn_handle, BUTTON_LONG_PRESS_UP, app_driver_trigger_factory_reset_button_callback, NULL);
+
+    /* Initialize I2C */
+    dev = i2c_master_init(I2C_NUM_0, I2C_SCL_IO, I2C_SDA_IO);
+
+    /* Initialize sensor */
+    temperature_sensor_sht30_config_t config = {
+        .sda_pin = I2C_SCL_IO,
+        .scl_pin = I2C_SDA_IO,
+        .address = 0x44
+    };
+    // temperature_sensor_sht30_init(dev, &config);
     return 0;
 }
 
 int app_driver_feature_update()
 {
     printf("%s: Feature update\n", TAG);
-    /* Add code to handle feature updates for the device */
-    /* Appropriate arguments might need to be passed to the function */
 
+    /* Nothing to do here. The device reports the feature data by itself. */
     return 0;
 }
 
