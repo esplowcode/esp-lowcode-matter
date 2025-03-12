@@ -75,7 +75,7 @@ int app_driver_read_temperature()
     temperature_sensor_sht30_get_celsius(dev, &temperature);
     system_delay_ms(100);
     app_driver_temperature_report(temperature);
-    printf("Temperature: %f\n", temperature);
+    printf("Temperature: %d.%02d\n", (int)temperature, (int)(temperature*100)%100);
     return 0;
 }
 

@@ -84,10 +84,11 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+cp out/* $product_folder/configuration/output/$mac_address/ 
 cd -
 echo "Successfully generated binary and JSON files from .matter file"
 
-cp "$product_folder/configuration/output/$mac_address/data_model.bin" "$product_folder/configuration/data_model.bin" 2>/dev/null || true
+cp "$product_folder/configuration/output/$mac_address/data_model.bin" "$product_folder/configuration/data_model.bin"
 
 # Get the current script's path
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
